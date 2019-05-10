@@ -51,7 +51,7 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     gameMessage = message
 
 @bot.command()
-async def orange(ctx):
-    await ctx.send(",".join(map(lambda x: x.mention, orangeTeam)))
+async def ping(ctx):
+    await ctx.send("Pong!")
 
 bot.run(open("botToken", "r").read())
