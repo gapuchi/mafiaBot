@@ -5,6 +5,7 @@ import random
 teamPlayers = []
 orangeTeam = []
 blueTeam = []
+mafia = []
 gameMessage = None
 votingChoices = ['1\u20E3','2\u20E3','3\u20E3','4\u20E3','5\u20E3','6\u20E3','7\u20E3','8\u20E3']
 
@@ -42,21 +43,34 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     global teamPlayers
     global orangeTeam
     global blueTeam
+    global mafia
     global gameMessage
 
-    teamPlayers = set(players)
-    mafia = set(random.choices(players, k=numOfMafias))
-    notMafia = set(players) - mafia
+    # Setting teams
+    teamPlayers = list(players)
+    random.shuffle(teamPlayers)
+    splittingIndex = int(len(teamPlayers) / 2 + random.uniform(0.25,0.75))
+    orangeTeam = teamPlayers[splittingIndex:]
+    blueTeam = teamPlayers[:splittingIndex]
 
-    orangeTeam = set(random.choices(players, k=int(len(players)/2)))
-    blueTeam = set(players) - orangeTeam
+    # Setting mafia
+    teams = [orangeTeam, blueTeam]
+    random.shuffle(teams)
 
-    # for player in mafia:
-    #     await player.send("You're Mafia!")
-    
-    # for player in notMafia:
-    #     await player.send("You're Villager!")
+    numMafiasTeam1 = int(numOfMafias / 2 + random.uniform(0.25,0.75))
+    numMafiasTeam2 = numOfMafias - numMafiasTeam1
 
+    mafia.extend(set(random.choices(teams[0], k = numMafiasTeam1)))
+    mafia.extend(set(random.choices(teams[1], k = numMafiasTeam2)))
+
+    # Notifying players of roles
+    for player in teamPlayers:
+        if player in mafia:
+            await player.send("You're Mafia!")
+        else:
+            await player.send("You're Villager!")
+
+    # Notify players of teams
     orangeMentions = ",".join(map(lambda x: x.mention, orangeTeam))
     blueMentions = ",".join(map(lambda x: x.mention, blueTeam))
 
