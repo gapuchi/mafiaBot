@@ -3,6 +3,8 @@ import discord
 import random
 import json
 
+votingChoices = ['1\u20E3','2\u20E3','3\u20E3','4\u20E3','5\u20E3','6\u20E3','7\u20E3','8\u20E3']
+
 teamPlayers = []
 orangeTeam = []
 blueTeam = []
@@ -12,7 +14,6 @@ mafia = []
 villagers = []
 gameMessage = None
 votingMessage = None
-votingChoices = ['1\u20E3','2\u20E3','3\u20E3','4\u20E3','5\u20E3','6\u20E3','7\u20E3','8\u20E3']
 numberedPlayers = None
 gameMaster = None
 
@@ -24,6 +25,7 @@ async def on_reaction_add(reaction, user):
     global numberedPlayers
     global winningTeam
     global losingTeam
+    global gameMessage
 
     if user.bot:
         return
@@ -45,9 +47,12 @@ async def on_reaction_add(reaction, user):
             embed = discord.Embed()
             embed.add_field(name="**Players:**", value=numberedPlayersString)
 
+            # Clearing to prevent further modification
+            gameMessage = None
+
             votingMessage = await reaction.message.channel.send("**Vote For Mafia!**", embed = embed)
             for option in votingOptions:
-                    await votingMessage.add_reaction(option)
+                await votingMessage.add_reaction(option)
 
         if reaction.emoji == '\U0001F537':
             if tooManyWinners(reaction.message):
@@ -70,13 +75,16 @@ async def on_reaction_add(reaction, user):
             return
 
         totalReactions = sum([x.count for x in reaction.message.reactions])
-        if totalReactions >= (2 * len(teamPlayers)):
+        if totalReactions == (2 * len(teamPlayers)):
             votes = {numberedPlayers[reaction.emoji]:  list(filter(lambda x: not x.bot, await reaction.users().flatten())) for reaction in reaction.message.reactions}
             points = calculatePoints(votes)
             embed = discord.Embed()
             for [user, points] in points.items():
                 embed.add_field(name="**{}**".format(user.name), value=points)
             await reaction.message.channel.send("**Points:**", embed=embed)
+            
+            # Clearing to prevent further modification
+            votingMessage = None
 
 def noWinners(message):
     reactionCount = {reaction.emoji: reaction.count for reaction in message.reactions}
@@ -122,7 +130,8 @@ def calculatePoints(votes):
             points[player] += villagerPointValues['teamWon']
 
         if player in mafia:
-            points[player] += mafiaPointValues['teamWon'] * mafiaPointValues['teamWonMultiplier']
+            points[player] += mafiaPointValues['teamWon']
+            points[player] *= mafiaPointValues['teamWonMultiplier']
 
     return points
 
@@ -142,6 +151,10 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     global villagers
     global gameMessage
     global gameMaster
+
+    if gameMessage is not None:
+        await ctx.send("**Game in progress!**")
+        return
 
     gameMaster = ctx.author
 
@@ -187,6 +200,11 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     await message.add_reaction('\U0001F3C1')
 
     gameMessage = message
+
+@bot.command()
+async def end(ctx):
+    global gameMessage
+    gameMessage = None
 
 @bot.command()
 async def ping(ctx):
