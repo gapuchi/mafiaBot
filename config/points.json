@@ -1,0 +1,14 @@
+{
+    "villager": {
+        "teamWon": 1,
+        "guessedMafia": 1,
+        "killedMafia": 2
+    },
+    "mafia": {
+        "notKilled": 1,
+        "noVotesAgainst": 2,
+        "teamLost": 2,
+        "teamWon": 0,
+        "teamWonMultiplier": 0
+    }
+}

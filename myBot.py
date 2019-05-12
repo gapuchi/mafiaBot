@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import random
+import json
 
 teamPlayers = []
 orangeTeam = []
@@ -13,6 +14,7 @@ gameMessage = None
 votingMessage = None
 votingChoices = ['1\u20E3','2\u20E3','3\u20E3','4\u20E3','5\u20E3','6\u20E3','7\u20E3','8\u20E3']
 numberedPlayers = None
+gameMaster = None
 
 bot = commands.Bot(command_prefix='$')
 
@@ -27,11 +29,15 @@ async def on_reaction_add(reaction, user):
         return
 
     if gameMessage is not None and reaction.message.id == gameMessage.id:
+        if user != gameMaster:
+            await reaction.remove(user)
+            return
+
         if reaction.emoji == '\U0001F3C1':
             if noWinners(reaction.message):
                 await reaction.remove(user)
                 return
-                
+
             votingOptions = votingChoices[:len(teamPlayers)]
             numberedPlayers = dict(zip(votingOptions, teamPlayers))
             numberedPlayersString = "".join("{}-{}".format(vote, player.mention) for [vote, player] in numberedPlayers.items())
@@ -67,7 +73,10 @@ async def on_reaction_add(reaction, user):
         if totalReactions >= (2 * len(teamPlayers)):
             votes = {numberedPlayers[reaction.emoji]:  list(filter(lambda x: not x.bot, await reaction.users().flatten())) for reaction in reaction.message.reactions}
             points = calculatePoints(votes)
-            await reaction.message.channel.send("**Voted:**" + "".join("{}-{}".format(player.mention, points) for [player, points] in points.items()))
+            embed = discord.Embed()
+            for [user, points] in points.items():
+                embed.add_field(name="**{}**".format(user.name), value=points)
+            await reaction.message.channel.send("**Points:**", embed=embed)
 
 def noWinners(message):
     reactionCount = {reaction.emoji: reaction.count for reaction in message.reactions}
@@ -79,37 +88,41 @@ def tooManyWinners(message):
 
 def calculatePoints(votes):
     points = dict((player, 0) for player in teamPlayers)
+    with open("config/points.json") as json_file:
+        pointValues = json.load(json_file)
+        villagerPointValues = pointValues['villager']
+        mafiaPointValues =  pointValues['mafia']
 
     for m in mafia:
         # Guessed mafia
         for player in votes[m]:
             if player not in mafia:
-                points[player] += 1
+                points[player] += villagerPointValues['guessedMafia']
 
         # Mafia not chosen in majority
         if len(votes[m]) * 2 < len(teamPlayers):
-            points[m] += 1
+            points[m] += mafiaPointValues['notKilled']
         # Killed mafia
         else:
             for villager in villagers:
-                points[villager] += 2
+                points[villager] += villagerPointValues['killedMafia']
 
         # No votes against mafia
         if len(votes[m]) == 0:
-            points[m] += 2
+            points[m] += mafiaPointValues['noVotesAgainst']
 
     # Mafia losing game
     for player in losingTeam:
         if player in mafia:
-            points[player] += 2
+            points[player] += mafiaPointValues['teamLost']
 
     # Winning game
     for player in winningTeam:
         if player not in mafia:
-            points[player] += 1
+            points[player] += villagerPointValues['teamWon']
 
         if player in mafia:
-            points[player] *= 0
+            points[player] += mafiaPointValues['teamWon'] * mafiaPointValues['teamWonMultiplier']
 
     return points
 
@@ -128,6 +141,9 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     global mafia
     global villagers
     global gameMessage
+    global gameMaster
+
+    gameMaster = ctx.author
 
     # Setting teams
     teamPlayers = list(players)
