@@ -74,6 +74,10 @@ async def on_reaction_add(reaction, user):
             await reaction.remove(user)
             return
 
+        if reaction.count == 1:
+            await reaction.remove(user)
+            return
+
         totalReactions = sum([x.count for x in reaction.message.reactions])
         if totalReactions == (2 * len(teamPlayers)):
             votes = {numberedPlayers[reaction.emoji]:  list(filter(lambda x: not x.bot, await reaction.users().flatten())) for reaction in reaction.message.reactions}
@@ -82,7 +86,7 @@ async def on_reaction_add(reaction, user):
             for [user, points] in points.items():
                 embed.add_field(name="**{}**".format(user.name), value=points)
             await reaction.message.channel.send("**Points:**", embed=embed)
-            
+
             # Clearing to prevent further modification
             votingMessage = None
 
@@ -172,6 +176,7 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     numMafiasTeam1 = int(numOfMafias / 2 + random.uniform(0.25,0.75))
     numMafiasTeam2 = numOfMafias - numMafiasTeam1
 
+    mafia = []
     mafia.extend(set(random.choices(teams[0], k = numMafiasTeam1)))
     mafia.extend(set(random.choices(teams[1], k = numMafiasTeam2)))
 
