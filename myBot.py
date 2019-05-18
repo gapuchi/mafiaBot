@@ -184,10 +184,7 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
 
     # Notifying players of roles
     for player in teamPlayers:
-        if player in mafia:
-            await player.send("You're Mafia!")
-        else:
-            await player.send("You're Villager!")
+        await player.send("You're {} on the {} team!".format("Mafia" if player in mafia else "Villager", "Orange" if player in orangeTeam else "Blue"))
 
     # Notify players of teams
 
