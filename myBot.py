@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from discord.ext import commands
 import discord
 import random
@@ -212,4 +214,5 @@ async def end(ctx):
 async def ping(ctx):
     await ctx.send("Pong!")
 
-bot.run(open("secrets/botToken", "r").read())
+with open("secrets/botToken", "r") as tokenf:
+    bot.run(tokenf.read().rstrip())
