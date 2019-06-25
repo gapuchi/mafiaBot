@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from discord.ext import commands
 import discord
 import random
@@ -190,10 +192,7 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
 
     # Notifying players of roles
     for player in teamPlayers:
-        if player in mafia:
-            await player.send("You're Mafia!")
-        else:
-            await player.send("You're Villager!")
+        await player.send("You're {} on the {} team!".format("Mafia" if player in mafia else "Villager", "Orange" if player in orangeTeam else "Blue"))
 
     # Notify players of teams
 
@@ -221,4 +220,5 @@ async def end(ctx):
 async def ping(ctx):
     await ctx.send("Pong!")
 
-bot.run(open("secrets/botToken", "r").read())
+with open("secrets/botToken", "r") as tokenf:
+    bot.run(tokenf.read().rstrip())
