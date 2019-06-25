@@ -16,6 +16,7 @@ gameMessage = None
 votingMessage = None
 numberedPlayers = None
 gameMaster = None
+pointsShown = false
 
 bot = commands.Bot(command_prefix='$')
 
@@ -26,6 +27,7 @@ async def on_reaction_add(reaction, user):
     global winningTeam
     global losingTeam
     global gameMessage
+    global pointsShown
 
     if user.bot:
         return
@@ -79,7 +81,7 @@ async def on_reaction_add(reaction, user):
             return
 
         totalReactions = sum([x.count for x in reaction.message.reactions])
-        if totalReactions == (2 * len(teamPlayers)):
+        if totalReactions == (2 * len(teamPlayers)) and not pointsShown:
             votes = {numberedPlayers[reaction.emoji]:  list(filter(lambda x: not x.bot, await reaction.users().flatten())) for reaction in reaction.message.reactions}
             points = calculatePoints(votes)
             embed = discord.Embed()
@@ -89,6 +91,7 @@ async def on_reaction_add(reaction, user):
 
             # Clearing to prevent further modification
             votingMessage = None
+            pointsShown = true
 
 def noWinners(message):
     reactionCount = {reaction.emoji: reaction.count for reaction in message.reactions}
@@ -155,6 +158,9 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     global villagers
     global gameMessage
     global gameMaster
+    global pointsShown
+
+    pointsShown = false
 
     if gameMessage is not None:
         await ctx.send("**Game in progress!**")
