@@ -5,7 +5,7 @@ import discord
 import random
 import json
 
-votingChoices = ['1\u20E3','2\u20E3','3\u20E3','4\u20E3','5\u20E3','6\u20E3','7\u20E3','8\u20E3']
+votingChoices = ['1\u20E3', '2\u20E3', '3\u20E3', '4\u20E3', '5\u20E3', '6\u20E3', '7\u20E3', '8\u20E3']
 
 teamPlayers = []
 orangeTeam = []
@@ -18,9 +18,10 @@ gameMessage = None
 votingMessage = None
 numberedPlayers = None
 gameMaster = None
-pointsShown = false
+pointsShown = False
 
 bot = commands.Bot(command_prefix='$')
+
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -40,22 +41,23 @@ async def on_reaction_add(reaction, user):
             return
 
         if reaction.emoji == '\U0001F3C1':
-            if noWinners(reaction.message):
+            if no_winners(reaction.message):
                 await reaction.remove(user)
                 return
 
-            votingOptions = votingChoices[:len(teamPlayers)]
-            numberedPlayers = dict(zip(votingOptions, teamPlayers))
-            numberedPlayersString = "".join("{}-{}".format(vote, player.mention) for [vote, player] in numberedPlayers.items())
+            voting_options = votingChoices[:len(teamPlayers)]
+            numberedPlayers = dict(zip(voting_options, teamPlayers))
+            numbered_players_string = "".join(
+                "{}-{}".format(vote, player.mention) for [vote, player] in numberedPlayers.items())
 
             embed = discord.Embed()
-            embed.add_field(name="**Players:**", value=numberedPlayersString)
+            embed.add_field(name="**Players:**", value=numbered_players_string)
 
             # Clearing to prevent further modification
             gameMessage = None
 
-            votingMessage = await reaction.message.channel.send("**Vote For Mafia!**", embed = embed)
-            for option in votingOptions:
+            votingMessage = await reaction.message.channel.send("**Vote For Mafia!**", embed=embed)
+            for option in voting_options:
                 await votingMessage.add_reaction(option)
 
         if reaction.emoji == '\U0001F537':
@@ -74,7 +76,7 @@ async def on_reaction_add(reaction, user):
 
     if votingMessage is not None and reaction.message.id == votingMessage.id:
         votes = len([reaction for reaction in reaction.message.reactions if user in await reaction.users().flatten()])
-        if votes > len(mafia):
+        if votes > 1:
             await reaction.remove(user)
             return
 
@@ -82,9 +84,11 @@ async def on_reaction_add(reaction, user):
             await reaction.remove(user)
             return
 
-        totalReactions = sum([x.count for x in reaction.message.reactions])
-        if totalReactions == (2 * len(teamPlayers)) and not pointsShown:
-            votes = {numberedPlayers[reaction.emoji]:  list(filter(lambda x: not x.bot, await reaction.users().flatten())) for reaction in reaction.message.reactions}
+        total_reactions = sum([x.count for x in reaction.message.reactions])
+        if total_reactions == (2 * len(teamPlayers)) and not pointsShown:
+            votes = {
+                numberedPlayers[reaction.emoji]: list(filter(lambda x: not x.bot, await reaction.users().flatten())) for
+                reaction in reaction.message.reactions}
             points = calculatePoints(votes)
             embed = discord.Embed()
             for [user, points] in points.items():
@@ -93,56 +97,60 @@ async def on_reaction_add(reaction, user):
 
             # Clearing to prevent further modification
             votingMessage = None
-            pointsShown = true
+            pointsShown = True
 
-def noWinners(message):
-    reactionCount = {reaction.emoji: reaction.count for reaction in message.reactions}
-    return reactionCount['\U0001F537'] == 1 and reactionCount['\U0001F536'] == 1
+
+def no_winners(message):
+    reaction_count = {reaction.emoji: reaction.count for reaction in message.reactions}
+    return reaction_count['\U0001F537'] == 1 and reaction_count['\U0001F536'] == 1
+
 
 def tooManyWinners(message):
-    reactionCount = {reaction.emoji: reaction.count for reaction in message.reactions}
-    return reactionCount['\U0001F537'] > 1 and reactionCount['\U0001F536'] > 1
+    reaction_count = {reaction.emoji: reaction.count for reaction in message.reactions}
+    return reaction_count['\U0001F537'] > 1 and reaction_count['\U0001F536'] > 1
+
 
 def calculatePoints(votes):
     points = dict((player, 0) for player in teamPlayers)
     with open("config/points.json") as json_file:
-        pointValues = json.load(json_file)
-        villagerPointValues = pointValues['villager']
-        mafiaPointValues =  pointValues['mafia']
+        point_values = json.load(json_file)
+        villager_point_values = point_values['villager']
+        mafia_point_values = point_values['mafia']
 
     for m in mafia:
         # Guessed mafia
         for player in votes[m]:
             if player not in mafia:
-                points[player] += villagerPointValues['guessedMafia']
+                points[player] += villager_point_values['guessedMafia']
 
         # Mafia not chosen in majority
         if len(votes[m]) * 2 < len(teamPlayers):
-            points[m] += mafiaPointValues['notKilled']
+            points[m] += mafia_point_values['notKilled']
         # Killed mafia
         else:
             for villager in villagers:
-                points[villager] += villagerPointValues['killedMafia']
+                points[villager] += villager_point_values['killedMafia']
 
         # No votes against mafia
         if len(votes[m]) == 0:
-            points[m] += mafiaPointValues['noVotesAgainst']
+            points[m] += mafia_point_values['noVotesAgainst']
 
     # Mafia losing game
     for player in losingTeam:
         if player in mafia:
-            points[player] += mafiaPointValues['teamLost']
+            points[player] += mafia_point_values['teamLost']
 
     # Winning game
     for player in winningTeam:
         if player not in mafia:
-            points[player] += villagerPointValues['teamWon']
+            points[player] += villager_point_values['teamWon']
 
         if player in mafia:
-            points[player] += mafiaPointValues['teamWon']
-            points[player] *= mafiaPointValues['teamWonMultiplier']
+            points[player] += mafia_point_values['teamWon']
+            points[player] *= mafia_point_values['teamWonMultiplier']
 
     return points
+
 
 @bot.event
 async def on_ready():
@@ -151,8 +159,18 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+
 @bot.command()
-async def new(ctx, numOfMafias: int, *players: discord.Member):
+async def new(ctx, num_of_mafias: int):
+    await initialize_game(ctx, num_of_mafias, ctx.author.voice.channel.members)
+
+
+@bot.command()
+async def f(ctx, num_of_mafias: int, *players: discord.Member):
+    await initialize_game(ctx, num_of_mafias, list(players))
+
+
+async def initialize_game(ctx, num_of_mafias: int, members):
     global teamPlayers
     global orangeTeam
     global blueTeam
@@ -162,7 +180,7 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     global gameMaster
     global pointsShown
 
-    pointsShown = false
+    pointsShown = False
 
     if gameMessage is not None:
         await ctx.send("**Game in progress!**")
@@ -171,37 +189,38 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
     gameMaster = ctx.author
 
     # Setting teams
-    teamPlayers = list(players)
+    teamPlayers = members
     random.shuffle(teamPlayers)
-    splittingIndex = int(len(teamPlayers) / 2 + random.uniform(0.25,0.75))
-    orangeTeam = teamPlayers[splittingIndex:]
-    blueTeam = teamPlayers[:splittingIndex]
+    splitting_index = int(len(teamPlayers) / 2 + random.uniform(0.25, 0.75))
+    orangeTeam = teamPlayers[splitting_index:]
+    blueTeam = teamPlayers[:splitting_index]
 
     # Setting mafia
     teams = [orangeTeam, blueTeam]
     random.shuffle(teams)
 
-    numMafiasTeam1 = int(numOfMafias / 2 + random.uniform(0.25,0.75))
-    numMafiasTeam2 = numOfMafias - numMafiasTeam1
+    num_mafias_team1 = int(num_of_mafias / 2 + random.uniform(0.25, 0.75))
+    num_mafias_team2 = num_of_mafias - num_mafias_team1
 
     mafia = []
-    mafia.extend(set(random.choices(teams[0], k = numMafiasTeam1)))
-    mafia.extend(set(random.choices(teams[1], k = numMafiasTeam2)))
+    mafia.extend(set(random.choices(teams[0], k=num_mafias_team1)))
+    mafia.extend(set(random.choices(teams[1], k=num_mafias_team2)))
 
     villagers = set(teamPlayers) - set(mafia)
 
     # Notifying players of roles
     for player in teamPlayers:
-        await player.send("You're {} on the {} team!".format("Mafia" if player in mafia else "Villager", "Orange" if player in orangeTeam else "Blue"))
+        await player.send("You're {} on the {} team!".format("Mafia" if player in mafia else "Villager",
+                                                             "Orange" if player in orangeTeam else "Blue"))
 
     # Notify players of teams
 
-    orangeMentions = ",".join(x.mention for x in orangeTeam)
-    blueMentions = ",".join(x.mention for x in blueTeam)
+    orange_mentions = ",".join(x.mention for x in orangeTeam)
+    blue_mentions = ",".join(x.mention for x in blueTeam)
 
     embed = discord.Embed()
-    embed.add_field(name="**Blue Team:**", value=blueMentions)
-    embed.add_field(name="**Orange Team:**", value=orangeMentions)
+    embed.add_field(name="**Blue Team:**", value=blue_mentions)
+    embed.add_field(name="**Orange Team:**", value=orange_mentions)
     embed.add_field(name="**Game Result:**", value="**Blue Won:\U0001F537 Orange Won:\U0001F536 Finish:\U0001F3C1**")
 
     message = await ctx.send("**New Game!**", embed=embed)
@@ -211,14 +230,17 @@ async def new(ctx, numOfMafias: int, *players: discord.Member):
 
     gameMessage = message
 
+
 @bot.command()
 async def end(ctx):
     global gameMessage
     gameMessage = None
 
+
 @bot.command()
 async def ping(ctx):
     await ctx.send("Pong!")
+
 
 with open("secrets/botToken", "r") as tokenf:
     bot.run(tokenf.read().rstrip())
