@@ -17,12 +17,18 @@ async def on_ready():
     print('------')
 
 
-@bot.command()
+@bot.group()
+async def mafia(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send('Invalid git command passed...')
+
+
+@mafia.command()
 async def new(ctx, num_of_mafias: int):
     await initialize_game(ctx, num_of_mafias, ctx.author.voice.channel.members)
 
 
-@bot.command()
+@mafia.command()
 async def f(ctx, num_of_mafias: int, *players: discord.Member):
     await initialize_game(ctx, num_of_mafias, list(players))
 
