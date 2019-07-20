@@ -28,7 +28,7 @@ class Voting(commands.Cog):
             return
 
         votes = len([reaction for reaction in reaction.message.reactions if user in await reaction.users().flatten()])
-        if votes > len(self.mafia):
+        if votes > 1:
             await reaction.remove(user)
             return
 
@@ -37,7 +37,7 @@ class Voting(commands.Cog):
             return
 
         total_reactions = sum([x.count for x in reaction.message.reactions])
-        if total_reactions < (len(self.mafia) + 1) * len(self.players):
+        if total_reactions < 2 * len(self.players):
             return
 
         votes = {
