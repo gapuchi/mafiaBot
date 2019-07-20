@@ -34,34 +34,20 @@ async def f(ctx, num_of_mafias: int, *players: discord.Member):
 
 
 async def initialize_game(ctx, num_of_mafias: int, members):
-
-    # Setting teams
     team_players = members
     random.shuffle(team_players)
-    splitting_index = int(len(team_players) / 2 + random.uniform(0.25, 0.75))
-    orange_team = team_players[splitting_index:]
-    blue_team = team_players[:splitting_index]
 
-    # Setting mafia
-    teams = [orange_team, blue_team]
-    random.shuffle(teams)
-
-    num_mafias_team1 = int(num_of_mafias / 2 + random.uniform(0.25, 0.75))
-    num_mafias_team2 = num_of_mafias - num_mafias_team1
-
-    mafia = []
-    mafia.extend(set(random.choices(teams[0], k=num_mafias_team1)))
-    mafia.extend(set(random.choices(teams[1], k=num_mafias_team2)))
-
-    villagers = set(team_players) - set(mafia)
+    # Setting teams, mafia, and villagers
+    orange_team, blue_team = random.sample([team_players[::2], team_players[1::2]], k=2)
+    mafias = team_players[:num_of_mafias]
+    villagers = team_players[num_of_mafias:]
 
     # Notifying players of roles
     for player in team_players:
-        await player.send("You're {} on the {} team!".format("Mafia" if player in mafia else "Villager",
+        await player.send("You're {} on the {} team!".format("Mafia" if player in mafias else "Villager",
                                                              "Orange" if player in orange_team else "Blue"))
 
     # Notify players of teams
-
     orange_mentions = ",".join(x.mention for x in orange_team)
     orange_mentions = orange_mentions if orange_mentions else "No one"
     blue_mentions = ",".join(x.mention for x in blue_team)
@@ -76,7 +62,7 @@ async def initialize_game(ctx, num_of_mafias: int, members):
     await message.add_reaction('\U0001F537')
     await message.add_reaction('\U0001F536')
 
-    bot.add_cog(Game(bot, message, ctx.author, team_players, blue_team, orange_team, mafia, villagers))
+    bot.add_cog(Game(bot, message, ctx.author, team_players, blue_team, orange_team, mafias, villagers))
 
 
 @bot.command()
