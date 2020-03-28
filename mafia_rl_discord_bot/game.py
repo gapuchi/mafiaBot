@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from Voting import Voting
+from .voting import Voting
 
 
 class Game(commands.Cog):

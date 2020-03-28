@@ -2,3 +2,6 @@ secrets/
 .vscode/
 venv/
 build/
+dist/
+discord.log
+__pycache__

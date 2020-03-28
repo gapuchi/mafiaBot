@@ -5,7 +5,7 @@ import discord
 import random
 import logging
 
-from Game import Game
+from .game import Game
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
