@@ -1,7 +1,7 @@
 import json
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 
 class Voting(commands.Cog):
@@ -17,6 +17,24 @@ class Voting(commands.Cog):
         self.losing_team = losing_team
         self.winning_team = winning_team
         self.villagers = villagers
+        self.check_votes.start()
+
+    @tasks.loop(seconds=1.0)
+    async def check_votes(self):
+        message = await self.message.channel.fetch_message(self.message.id)
+        total_reactions = sum([x.count for x in message.reactions])
+
+        if total_reactions >= 2 * len(self.players):
+            votes = {
+                self.voting_options[reaction.emoji]: list(filter(lambda x: not x.bot, await reaction.users().flatten()))
+                for reaction in message.reactions}
+            points = self.calculate_points(votes)
+            embed = discord.Embed()
+            for [user, points] in points.items():
+                embed.add_field(name="**{}**".format(user.name), value=points)
+            await message.channel.send("**Points:**", embed=embed)
+            self.bot.remove_cog('Voting')
+            self.check_votes.stop()
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -35,20 +53,6 @@ class Voting(commands.Cog):
         if reaction.emoji not in self.voting_options:
             await reaction.remove(user)
             return
-
-        total_reactions = sum([x.count for x in reaction.message.reactions])
-        if total_reactions < 2 * len(self.players):
-            return
-
-        votes = {
-            self.voting_options[reaction.emoji]: list(filter(lambda x: not x.bot, await reaction.users().flatten()))
-            for reaction in reaction.message.reactions}
-        points = self.calculate_points(votes)
-        embed = discord.Embed()
-        for [user, points] in points.items():
-            embed.add_field(name="**{}**".format(user.name), value=points)
-        await reaction.message.channel.send("**Points:**", embed=embed)
-        self.bot.remove_cog('Voting')
 
     def calculate_points(self, votes):
         points = dict((player, 0) for player in self.players)
