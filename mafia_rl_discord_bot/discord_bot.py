@@ -53,7 +53,7 @@ async def initialize_game(ctx, num_of_mafias: int, members):
     # Notifying players of roles
     for player in team_players:
         await player.send("You're {} on the {} team!".format("Mafia" if player in mafias else "Villager",
-                                                             "Orange" if player in orange_team else "Blue"))
+                                                            "Orange" if player in orange_team else "Blue"))
 
     # Notify players of teams
     orange_mentions = ",".join(x.mention for x in orange_team)
@@ -77,12 +77,25 @@ async def initialize_game(ctx, num_of_mafias: int, members):
 async def ping(ctx):
     await ctx.send("Pong!")
 
+def get_token() -> str:
+    from pathlib import Path
+    from appdirs import AppDirs
 
-def run_bot():
-    app_name = "mafiarldiscordbot"
-    app_author = "gapuchi"
-    dirs = AppDirs(app_name, app_author)
-    config_path = dirs.user_config_dir
-    token_path = os.path.join(config_path, 'secrets', 'botToken')
-    with open(token_path, "r") as token:
-        bot.run(token.read().rstrip())
+    dirs = AppDirs("mafiarldiscordbot", "gapuchi")
+    token_path = Path(dirs.user_config_dir) / "secrets" / "botToken"
+
+    try:
+        with open(token_path) as f:
+            return f.read().rstrip()
+    except FileNotFoundError:
+        pass
+
+    token = input('Enter your bot token: ')
+    token_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(token_path, "w") as f:
+        f.write(token)
+
+    return token
+
+def run_bot() -> None:
+    bot.run(get_token())

@@ -13,7 +13,13 @@ setup(
     url='https://github.com/gapuchi/mafiaBot',
     author='Arjun Adhia',
     author_email='arjun.adhia@gmail.com',
+
     version='0.0.1',
+
     install_requires=['discord.py', 'appdirs'],
-    packages=find_packages(),
+	python_requires='>=3.7',
+	packages=['mafia_rl_discord_bot'],
+	package_data={'mafia_rl_discord_bot':['config/*.json']},
+
+	entry_points={ 'console_scripts': ['mafia_rl_discord_bot=mafia_rl_discord_bot.discord_bot:run_bot'] }
 )
