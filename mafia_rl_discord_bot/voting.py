@@ -9,7 +9,7 @@ from discord.ext import commands, tasks
 class Voting(commands.Cog):
 
     def __init__(self, bot, mafia, players, voting_options, message, losing_team, winning_team,
-                villagers):
+                 villagers):
         self.bot = bot
         self.mafia = mafia
         self.players = players

@@ -17,9 +17,9 @@ setup(
     version='0.0.1',
 
     install_requires=['discord.py', 'appdirs'],
-	python_requires='>=3.7',
-	packages=['mafia_rl_discord_bot'],
-	package_data={'mafia_rl_discord_bot':['config/*.json']},
+    python_requires='>=3.7',
+    packages=['mafia_rl_discord_bot'],
+    package_data={'mafia_rl_discord_bot': ['config/*.json']},
 
-	entry_points={ 'console_scripts': ['mafia_rl_discord_bot=mafia_rl_discord_bot.discord_bot:run_bot'] }
+    entry_points={'console_scripts': ['mafia_rl_discord_bot=mafia_rl_discord_bot.discord_bot:run_bot']}
 )

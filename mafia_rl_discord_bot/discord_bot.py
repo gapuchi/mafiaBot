@@ -4,8 +4,6 @@ from discord.ext import commands
 import discord
 import random
 import logging
-from appdirs import AppDirs
-import os
 from .game import Game
 
 logger = logging.getLogger('discord')
@@ -53,7 +51,7 @@ async def initialize_game(ctx, num_of_mafias: int, members):
     # Notifying players of roles
     for player in team_players:
         await player.send("You're {} on the {} team!".format("Mafia" if player in mafias else "Villager",
-                                                            "Orange" if player in orange_team else "Blue"))
+                                                             "Orange" if player in orange_team else "Blue"))
 
     # Notify players of teams
     orange_mentions = ",".join(x.mention for x in orange_team)
@@ -77,6 +75,7 @@ async def initialize_game(ctx, num_of_mafias: int, members):
 async def ping(ctx):
     await ctx.send("Pong!")
 
+
 def get_token() -> str:
     from pathlib import Path
     from appdirs import AppDirs
@@ -96,6 +95,7 @@ def get_token() -> str:
         f.write(token)
 
     return token
+
 
 def run_bot() -> None:
     bot.run(get_token())
