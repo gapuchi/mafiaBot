@@ -1,4 +1,6 @@
 import json
+from collections import defaultdict
+from pkg_resources import resource_filename
 
 import discord
 from discord.ext import commands, tasks
@@ -7,7 +9,7 @@ from discord.ext import commands, tasks
 class Voting(commands.Cog):
 
     def __init__(self, bot, mafia, players, voting_options, message, losing_team, winning_team,
-                 villagers):
+                villagers):
         self.bot = bot
         self.mafia = mafia
         self.players = players
@@ -55,9 +57,10 @@ class Voting(commands.Cog):
             return
 
     def calculate_points(self, votes):
-        points = dict((player, 0) for player in self.players)
-        with open("config/points.json") as json_file:
-            point_values = json.load(json_file)
+        points = defaultdict(int)
+
+        with open(resource_filename(__name__, "config/points.json")) as f:
+            point_values = json.load(f)
             villager_point_values = point_values['villager']
             mafia_point_values = point_values['mafia']
 
