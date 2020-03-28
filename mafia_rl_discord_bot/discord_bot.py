@@ -4,7 +4,8 @@ from discord.ext import commands
 import discord
 import random
 import logging
-
+from appdirs import AppDirs
+import os
 from .game import Game
 
 logger = logging.getLogger('discord')
@@ -77,5 +78,11 @@ async def ping(ctx):
     await ctx.send("Pong!")
 
 
-with open("secrets/botToken", "r") as token:
-    bot.run(token.read().rstrip())
+def run_bot():
+    app_name = "mafiarldiscordbot"
+    app_author = "gapuchi"
+    dirs = AppDirs(app_name, app_author)
+    config_path = dirs.user_config_dir
+    token_path = os.path.join(config_path, 'secrets', 'botToken')
+    with open(token_path, "r") as token:
+        bot.run(token.read().rstrip())

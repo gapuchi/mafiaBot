@@ -14,6 +14,6 @@ setup(
     author='Arjun Adhia',
     author_email='arjun.adhia@gmail.com',
     version='0.0.1',
-    install_requires=['discord.py'],
+    install_requires=['discord.py', 'appdirs'],
     packages=find_packages(),
 )
