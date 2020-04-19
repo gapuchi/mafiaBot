@@ -49,7 +49,7 @@ class Game(commands.Cog):
         voting_options = Game.votingChoices[:len(self.players)]
         numbered_players = dict(zip(voting_options, self.players))
         numbered_players_string = "".join(
-            "{}-{}".format(vote, player.mention) for [vote, player] in numbered_players.items())
+            "{}-{}".format(vote, player.mention) for (vote, player) in numbered_players.items())
 
         embed = discord.Embed()
         embed.add_field(name="**Players:**", value=numbered_players_string)

@@ -24,7 +24,7 @@ class Voting(commands.Cog):
     @tasks.loop(seconds=1.0)
     async def check_votes(self):
         message = await self.message.channel.fetch_message(self.message.id)
-        total_reactions = sum([x.count for x in message.reactions])
+        total_reactions = sum(x.count for x in message.reactions)
 
         if total_reactions >= 2 * len(self.players):
             votes = {
@@ -32,7 +32,7 @@ class Voting(commands.Cog):
                 for reaction in message.reactions}
             points = self.calculate_points(votes)
             embed = discord.Embed()
-            for [user, points] in points.items():
+            for (user, points) in points.items():
                 embed.add_field(name="**{}**".format(user.name), value=points)
             await message.channel.send("**Points:**", embed=embed)
             self.bot.remove_cog('Voting')
