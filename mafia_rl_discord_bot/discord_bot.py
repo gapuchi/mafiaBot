@@ -46,7 +46,8 @@ async def shutdown(ctx):
 
 
 async def initialize_game(ctx, num_of_mafias: int, members):
-    team_players = members
+    team_players = [x for x in members if not x.bot]
+
     random.shuffle(team_players)
 
     # Setting teams, mafia, and villagers
