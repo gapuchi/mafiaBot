@@ -26,16 +26,32 @@ async def on_ready():
 @bot.group()
 async def mafia(ctx):
     if ctx.invoked_subcommand is None:
-        await ctx.send('Invalid git command passed...')
+        await ctx.send('Invalid command passed...')
 
 
-@mafia.command()
+@bot.group()
+async def game(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send('Invalid command passed...')
+
+
+@game.command(help='Creates teams using the members on the voice channel.')
+async def new(ctx):
+    await initialize_game(ctx, 0, ctx.author.voice.channel.members)
+
+
+@game.command(name='with', help='Creates teams using only the members provided.')
+async def with_players(ctx, *players: discord.Member):
+    await initialize_game(ctx, 0, list(players))
+
+
+@mafia.command(help='Creates teams using the members on the voice channel.')
 async def new(ctx, num_of_mafias: int):
     await initialize_game(ctx, num_of_mafias, ctx.author.voice.channel.members)
 
 
-@mafia.command()
-async def f(ctx, num_of_mafias: int, *players: discord.Member):
+@mafia.command(name='with', help='Creates teams using only the members provided.')
+async def with_players(ctx, num_of_mafias: int, *players: discord.Member):
     await initialize_game(ctx, num_of_mafias, list(players))
 
 
