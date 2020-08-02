@@ -39,6 +39,11 @@ async def f(ctx, num_of_mafias: int, *players: discord.Member):
     await initialize_game(ctx, num_of_mafias, list(players))
 
 
+@bot.command(name='self_destruct')
+@commands.is_owner()
+async def shutdown(ctx):
+    await ctx.bot.logout()
+
 async def initialize_game(ctx, num_of_mafias: int, members):
     team_players = members
     random.shuffle(team_players)
