@@ -37,7 +37,10 @@ async def game(ctx):
 
 @game.command(help='Creates teams using the members on the voice channel.')
 async def new(ctx):
-    await initialize_game(ctx, 0, ctx.author.voice.channel.members)
+    if ctx.author.voice is None:
+        await ctx.send('You are not on a voice channel.')
+    else:
+        await initialize_game(ctx, 0, ctx.author.voice.channel.members)
 
 
 @game.command(name='with', help='Creates teams using only the members provided.')
@@ -47,7 +50,10 @@ async def with_players(ctx, *players: discord.Member):
 
 @mafia.command(help='Creates teams using the members on the voice channel.')
 async def new(ctx, num_of_mafias: int):
-    await initialize_game(ctx, num_of_mafias, ctx.author.voice.channel.members)
+    if ctx.author.voice is None:
+        await ctx.send('You are not on a voice channel.')
+    else:
+        await initialize_game(ctx, num_of_mafias, ctx.author.voice.channel.members)
 
 
 @mafia.command(name='with', help='Creates teams using only the members provided.')
