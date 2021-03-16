@@ -77,10 +77,13 @@ async def initialize_game(ctx, num_of_mafias: int, members):
     mafias = team_players[:num_of_mafias]
     villagers = team_players[num_of_mafias:]
 
-    # Notifying players of roles
-    for player in team_players:
-        await player.send("You're {} on the {} team!".format("Mafia" if player in mafias else "Villager",
-                                                             "Orange" if player in orange_team else "Blue"))
+
+    if (num_of_mafias > 0):
+        # Notifying players of roles
+        for player in team_players:
+            await player.send("You're {} on the {} team!".format("Mafia" if player in mafias else "Villager",
+                                                                 "Orange" if player in orange_team else "Blue"))
+
 
     # Notify players of teams
     orange_mentions = ",".join(x.mention for x in orange_team)
