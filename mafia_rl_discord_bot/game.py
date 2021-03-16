@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from .voting import Voting
+from mafia_rl_discord_bot.voting import Voting
 
 
 class Game(commands.Cog):

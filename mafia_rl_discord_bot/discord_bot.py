@@ -4,7 +4,7 @@ from discord.ext import commands
 import discord
 import random
 import logging
-from .game import Game
+from mafia_rl_discord_bot.game import Game
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -131,3 +131,6 @@ def get_token() -> str:
 
 def run_bot() -> None:
     bot.run(get_token())
+
+if __name__ == "__main__":
+    run_bot()
