@@ -1,3 +1,4 @@
+import random
 import discord
 from discord.ext import commands
 
@@ -12,7 +13,7 @@ class Game(commands.Cog):
         self.bot = bot
         self.message = message
         self.gameMaster = game_master
-        self.players = players
+        self.players = random.shuffle(players)
         self.blueTeam = blue_team
         self.orangeTeam = orange_team
         self.mafia = mafia
