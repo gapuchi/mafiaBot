@@ -76,9 +76,11 @@ async def initialize_game(ctx, num_of_mafias: int, members):
 
     # Setting teams, mafia, and villagers
     orange_team, blue_team = random.sample([team_players[::2], team_players[1::2]], k=2)
+
+    random.shuffle(team_players)
+
     mafias = team_players[:num_of_mafias]
     villagers = team_players[num_of_mafias:]
-
 
     if (num_of_mafias > 0):
         # Notifying players of roles

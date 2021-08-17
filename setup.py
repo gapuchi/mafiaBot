@@ -14,7 +14,7 @@ setup(
     author='Arjun Adhia',
     author_email='arjun.adhia@gmail.com',
 
-    version='0.0.7',
+    version='0.0.9',
 
     install_requires=['discord.py', 'appdirs'],
     python_requires='>=3.7',
