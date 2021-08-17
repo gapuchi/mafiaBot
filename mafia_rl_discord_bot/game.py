@@ -1,4 +1,5 @@
 import random
+from random import shuffle
 import discord
 from discord.ext import commands
 
@@ -13,7 +14,7 @@ class Game(commands.Cog):
         self.bot = bot
         self.message = message
         self.gameMaster = game_master
-        self.players = random.shuffle(players)
+        self.players = players
         self.blueTeam = blue_team
         self.orangeTeam = orange_team
         self.mafia = mafia
@@ -47,6 +48,7 @@ class Game(commands.Cog):
             return
 
     async def set_voting(self, reaction, winning_team, losing_team):
+        shuffle(self.players)
         voting_options = Game.votingChoices[:len(self.players)]
         numbered_players = dict(zip(voting_options, self.players))
         numbered_players_string = "".join(
