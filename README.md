@@ -71,7 +71,6 @@ Installed the package
 
 ```
 (env) ~/personalWorkspace/mafia_bot $ pip install mafia-rl-discord-bot
-(env) ~/personalWorkspace/mafia_bot $ source env/bin/activate
 ```
 
 Ran the package
