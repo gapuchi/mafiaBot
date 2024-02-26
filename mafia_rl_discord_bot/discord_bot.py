@@ -104,7 +104,7 @@ async def initialize_game(ctx, num_of_mafias: int, members):
     await message.add_reaction('\U0001F537')
     await message.add_reaction('\U0001F536')
 
-    bot.add_cog(Game(bot, message, ctx.author, team_players, blue_team, orange_team, mafias, villagers))
+    await bot.add_cog(Game(bot, message, ctx.author, team_players, blue_team, orange_team, mafias, villagers))
 
 
 @bot.command()
